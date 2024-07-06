@@ -8,7 +8,7 @@ ENT.AdminSpawnable = false
 
 ENT.Model = "models/Items/AR2_Grenade.mdl"
 
-ENT.FireTime = 15
+ENT.FireTime = 15 -- UC uses a 20 second lifetime
 
 ENT.Armed = false
 
@@ -39,12 +39,7 @@ function ENT:Initialize()
         self.SpawnTime = CurTime()
         self:Detonate()
 
-        self.FireTime = math.Rand(14.5, 15.5)
-
-        timer.Simple(0.1, function()
-            if !IsValid(self) then return end
-            self:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
-        end)
+        self.FireTime = math.Rand(self.FireTime - 1, self.FireTime + 1)
     end
 end
 
@@ -152,15 +147,12 @@ function ENT:Think()
         local owner = self:GetOwner()
         local dmg = DamageInfo()
         dmg:SetDamageType(DMG_BURN)
-        dmg:SetDamage(10)
+        dmg:SetDamage(math.Round(math.random() * 2 + 3))
         dmg:SetInflictor(self)
-        if IsValid(owner) then
-            dmg:SetAttacker(self:GetOwner())
-        else
-            dmg:SetAttacker(game.GetWorld())
-        end
+        dmg:SetAttacker(IsValid(owner) and owner or game.GetWorld())
         util.BlastDamageInfo(dmg, self:GetPos(), 200)
 
+         -- Urban Coalition fire uses a 0.15 delay, but this one has a larger radius so we'll keep this the same
         self.NextDamageTick = CurTime() + 0.25
 
         if self.SpawnTime + self.FireTime <= CurTime() then self:Remove() return end
