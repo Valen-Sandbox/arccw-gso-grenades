@@ -87,12 +87,13 @@ function ENT:Think()
         if SERVER then
             if self.NextDamageTick > CurTime() then return end
 
+            local owner = self:GetOwner()
             local dmg = DamageInfo()
             dmg:SetDamageType(DMG_BURN)
-            dmg:SetDamage(75)
+            dmg:SetDamage(40)
             dmg:SetInflictor(self)
-            dmg:SetAttacker(self:GetOwner())
-            util.BlastDamageInfo(dmg, self:GetPos(), 256)
+            dmg:SetAttacker(IsValid(owner) and owner or game.GetWorld())
+            util.BlastDamageInfo(dmg, self:GetPos(), 145)
 
             self.NextDamageTick = CurTime() + 0.25
 
@@ -286,6 +287,8 @@ function ENT:DrawTranslucent()
     self:Draw()
 end
 
+local flareSprite = Material("sprites/orangeflare1")
+
 function ENT:Draw()
     if CLIENT then
         self:DrawModel()
@@ -293,8 +296,8 @@ function ENT:Draw()
         if !self:GetArmed() then return end
 
         cam.Start3D() -- Start the 3D function so we can draw onto the screen.
-            render.SetMaterial( Material("sprites/orangeflare1") ) -- Tell render what material we want, in this case the flash from the gravgun
-            render.DrawSprite( self:GetPos(), math.random(400, 500), math.random(400, 500), Color(255, 255, 255) ) -- Draw the sprite in the middle of the map, at 16x16 in it's original colour with full alpha.
+            render.SetMaterial( flareSprite ) -- Tell render what material we want, in this case the flash from the gravgun
+            render.DrawSprite( self:GetPos(), math.random(400, 500), math.random(400, 500), color_white ) -- Draw the sprite in the middle of the map, at 16x16 in it's original colour with full alpha.
         cam.End3D()
     end
 end
